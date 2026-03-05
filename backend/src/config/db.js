@@ -4,7 +4,8 @@ require('dotenv').config();
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
+    const conn = await mongoose.connect("mongodb://localhost:27017/sparkwash", {
+      
       serverSelectionTimeoutMS: 5000,
     });
     logger.info(`MongoDB connected: ${conn.connection.host}`);
