@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: sparkwash_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: sparkwash
+      MONGO_INITDB_ROOT_PASSWORD: sparkwash123
+      MONGO_INITDB_DATABASE: sparkwash
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - sparkwash_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sparkwash_backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://sparkwash:sparkwash123@mongo:27017/sparkwash?authSource=admin
+      JWT_SECRET: sparkwash_super_secret_jwt_key_change_in_production
+      JWT_EXPIRES_IN: 7d
+      CLIENT_URL: http://localhost:5173
+      SMTP_HOST: smtp.ethereal.email
+      SMTP_PORT: 587
+      SMTP_USER: your_ethereal_user
+      SMTP_PASS: your_ethereal_pass
+      SMTP_FROM: noreply@sparkwash.com
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./backend/logs:/app/logs
+    networks:
+      - sparkwash_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sparkwash_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '5173:80'
+    networks:
+      - sparkwash_net
+
+volumes:
+  mongo_data:
+
+networks:
+  sparkwash_net:
+    driver: bridge
