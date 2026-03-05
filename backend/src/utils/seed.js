@@ -6,7 +6,7 @@ const Staff = require('../models/Staff');
 const Inventory = require('../models/Inventory');
 
 async function seed() {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect("mongodb://localhost:27017/sparkwash");
   console.log('Connected to MongoDB');
 
   // Users
